@@ -1,0 +1,129 @@
+package fr.devavance.calculatrice.controller;
+
+
+import fr.devavance.calculatrice.Operation;
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import fr.devavance.calculatrice.Calculator;
+import fr.devavance.calculatrice.exceptions.OperatorException;
+
+import java.util.ArrayList;
+
+
+/**
+ *
+ * @author B. LEMAIRE
+ * Controller pour la calculatrice
+ * <p>
+ * Ce code utilise volontairement des anti-patterns, il n'a pas un
+ * bon "good smell"
+ * Ce code doit être refactorisé  pour respecter les
+ * principes du "good smell code"
+ */
+
+
+@WebServlet(urlPatterns = {"/calculate/*"})
+public class CalculatorController extends HttpServlet {
+    public static final String URL_PARAMETER_OF_OPERATOR= "operation";
+    public static final String URL_PARAMETER_OF_FIRST_OPERANDE = "operande1";
+    public static final String URL_PARAMETER_OF_SECOND_OPERANDE = "operande2";
+    
+    public static final String INVALID_OPERATION_ERROR_LABEL = "Opération Invalide !";
+
+    
+
+    private static ArrayList<String> permittedOperators = null;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        this.permittedOperators = new ArrayList<>();
+
+        this.permittedOperators.add(Calculator.ADD_LABEL);
+        this.permittedOperators.add(Calculator.SUBSTRACTION_LABEL);
+        this.permittedOperators.add(Calculator.MULTIPLICATION_LABEL);
+        this.permittedOperators.add(Calculator.DIVISION_LABEL);
+    }
+
+    //<editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request  servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request,
+                         HttpServletResponse response)
+            throws ServletException, IOException {
+
+
+        String operator = request.getParameter(CalculatorController.URL_PARAMETER_OF_OPERATOR);
+        String operande1 = request.getParameter(CalculatorController.URL_PARAMETER_OF_FIRST_OPERANDE);
+        String operande2 = request.getParameter(CalculatorController.URL_PARAMETER_OF_SECOND_OPERANDE);
+
+        if (operator == null
+                || operator.isEmpty()
+                || !this.permittedOperators.contains(operator))
+
+            throw new OperatorException();
+
+
+        int operande1Int = Integer.parseInt(operande1);
+        int operande2Int = Integer.parseInt(operande2);
+
+
+        double operationResult;
+
+        if (operator.equals(Calculator.ADD_LABEL))
+            operationResult = Calculator.addition(operande1Int, operande2Int);
+        else if (operator.equals(Calculator.SUBSTRACTION_LABEL))
+            operationResult = Calculator.soustraction(operande1Int, operande2Int);
+        else if (operator.equals(Calculator.DIVISION_LABEL))
+            operationResult = Calculator.division(operande1Int, operande2Int);
+        else if (operator.equals(Calculator.MULTIPLICATION_LABEL))
+            operationResult = Calculator.multiplication(operande1Int, operande2Int);
+        else throw new ServletException(CalculatorController.INVALID_OPERATION_ERROR_LABEL);
+
+
+        response.setContentType("text/html;charset=UTF-8");
+
+        PrintWriter out = response.getWriter();
+        try {
+
+
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Calculator</title>");
+            out.println("</head>");
+            out.println("<body>");
+
+            out.println("<div>");
+            out.println("<p class=\"operande\">Operande 1 : " + operande1Int + "</p>");
+            out.println("<p class=\"operande\">Operande 2 : " + operande2Int + "</p>");
+            out.println("<p class=\"operation\">Operateur : " + operator + "</p>");
+            out.println("<p class=\"resultat\">resultat : " + operationResult + "</p>");
+            out.println("</div>");
+
+            out.println("</body>");
+            out.println("</html>");
+        } finally {
+            out.close();
+        }
+    }
+    
+    private void extractOperationParameters(Operation operation){
+        
+    }
+}
+     
