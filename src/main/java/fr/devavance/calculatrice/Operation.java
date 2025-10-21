@@ -29,7 +29,10 @@ public class Operation {
     public String getOperator() { return this.operator; }
     public Integer getOperande1() { return this.operande1; }
     public Integer getOperande2() { return this.operande2; }
-    public Double getResult() { return this.result; } 
+    public Double getResult() { return this.result; }
     
-    
+    public void setOperator(String operator) { this.operator = operator; }
+    public void setOperande1(Integer operande1) { this.operande1 = operande1; }
+    public void setOperande2(Integer operande2) { this.operande2 = operande2; }
+    public void setResult(Double result) { this.result = result; }
 }

@@ -84,15 +84,22 @@ public class CalculatorController extends HttpServlet {
 
         double operationResult;
 
-        if (operator.equals(Calculator.ADD_LABEL))
-            operationResult = Calculator.addition(operande1Int, operande2Int);
-        else if (operator.equals(Calculator.SUBSTRACTION_LABEL))
-            operationResult = Calculator.soustraction(operande1Int, operande2Int);
-        else if (operator.equals(Calculator.DIVISION_LABEL))
-            operationResult = Calculator.division(operande1Int, operande2Int);
-        else if (operator.equals(Calculator.MULTIPLICATION_LABEL))
-            operationResult = Calculator.multiplication(operande1Int, operande2Int);
-        else throw new ServletException(CalculatorController.INVALID_OPERATION_ERROR_LABEL);
+        switch (operator) {
+            case Calculator.ADD_LABEL:
+                operationResult = Calculator.addition(operande1Int, operande2Int);
+                break;
+            case Calculator.SUBSTRACTION_LABEL:
+                operationResult = Calculator.soustraction(operande1Int, operande2Int);
+                break;
+            case Calculator.DIVISION_LABEL:
+                operationResult = Calculator.division(operande1Int, operande2Int);
+                break;
+            case Calculator.MULTIPLICATION_LABEL:
+                operationResult = Calculator.multiplication(operande1Int, operande2Int);
+                break;
+            default:
+                throw new ServletException(CalculatorController.INVALID_OPERATION_ERROR_LABEL);
+        }
 
 
         response.setContentType("text/html;charset=UTF-8");
@@ -122,8 +129,23 @@ public class CalculatorController extends HttpServlet {
         }
     }
     
-    private void extractOperationParameters(Operation operation){
+    private void extractOperationParameters(HttpServletRequest request, Operation operation){
+        String operator = request.getParameter(CalculatorController.URL_PARAMETER_OF_OPERATOR);
+        String operande1 = request.getParameter(CalculatorController.URL_PARAMETER_OF_FIRST_OPERANDE);
+        String operande2 = request.getParameter(CalculatorController.URL_PARAMETER_OF_SECOND_OPERANDE);
+
+        if (operator == null
+                || operator.isEmpty()
+                || !this.permittedOperators.contains(operator))
+
+            throw new OperatorException();
+
+        int operande1Int = Integer.parseInt(operande1);
+        int operande2Int = Integer.parseInt(operande2);
         
+        operation.setOperator(operator);
+        operation.setOperande1(operande1Int);
+        operation.setOperande2(operande2Int);
     }
 }
      
