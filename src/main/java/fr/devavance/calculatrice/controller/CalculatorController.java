@@ -67,19 +67,8 @@ public class CalculatorController extends HttpServlet {
             throws ServletException, IOException {
 
 
-        String operator = request.getParameter(CalculatorController.URL_PARAMETER_OF_OPERATOR);
-        String operande1 = request.getParameter(CalculatorController.URL_PARAMETER_OF_FIRST_OPERANDE);
-        String operande2 = request.getParameter(CalculatorController.URL_PARAMETER_OF_SECOND_OPERANDE);
-
-        if (operator == null
-                || operator.isEmpty()
-                || !this.permittedOperators.contains(operator))
-
-            throw new OperatorException();
-
-
-        int operande1Int = Integer.parseInt(operande1);
-        int operande2Int = Integer.parseInt(operande2);
+        Operation operation = new Operation();
+        extractOperationParameters();
 
 
         double operationResult;
