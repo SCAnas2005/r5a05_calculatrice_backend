@@ -2,6 +2,8 @@ package fr.devavance.calculatrice.controller;
 
 
 import fr.devavance.calculatrice.Operation;
+import fr.devavance.calculatrice.Soustraction;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -10,10 +12,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import fr.devavance.calculatrice.Calculator;
+import fr.devavance.calculatrice.Addition;
+import fr.devavance.calculatrice.Division;
+import fr.devavance.calculatrice.IOperation;
+import fr.devavance.calculatrice.Multiplication;
 import fr.devavance.calculatrice.exceptions.OperatorException;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 
 /**
@@ -36,18 +42,23 @@ public class CalculatorController extends HttpServlet {
     
     public static final String INVALID_OPERATION_ERROR_LABEL = "Opération Invalide !";
 
+    public static final String ADD_LABEL = "add";
+    public static final String SUBSTRACTION_LABEL = "sub";
+    public static final String MULTIPLICATION_LABEL = "mul";
+    public static final String DIVISION_LABEL = "div";
+
+
     
-
-    private static ArrayList<String> permittedOperators = null;
-
+    private Map<String, IOperation> operationsMap;
     @Override
     public void init() throws ServletException {
         super.init();
-        this.permittedOperators = new ArrayList<>();
-        this.permittedOperators.add(Calculator.ADD_LABEL);
-        this.permittedOperators.add(Calculator.SUBSTRACTION_LABEL);
-        this.permittedOperators.add(Calculator.MULTIPLICATION_LABEL);
-        this.permittedOperators.add(Calculator.DIVISION_LABEL);
+        operationsMap = Map.of(
+            CalculatorController.ADD_LABEL, new Addition(),
+            CalculatorController.SUBSTRACTION_LABEL, new Soustraction(),
+            CalculatorController.MULTIPLICATION_LABEL, new Multiplication(),
+            CalculatorController.DIVISION_LABEL, new Division()
+        );
     }
 
     //<editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -77,7 +88,7 @@ public class CalculatorController extends HttpServlet {
 
         if (operator == null
                 || operator.isEmpty()
-                || !this.permittedOperators.contains(operator))
+                || !this.operationsMap.containsKey(operator))
 
             throw new OperatorException();
 
@@ -91,24 +102,8 @@ public class CalculatorController extends HttpServlet {
 
     private void proceedCalculation(Operation operation) throws ServletException {
         double operationResult;
-
-        switch (operation.getOperator()) {
-            case Calculator.ADD_LABEL:
-                operationResult = Calculator.addition(operation.getOperande1(), operation.getOperande2());
-                break;
-            case Calculator.SUBSTRACTION_LABEL:
-                operationResult = Calculator.soustraction(operation.getOperande1(), operation.getOperande2());
-                break;
-            case Calculator.DIVISION_LABEL:
-                operationResult = Calculator.division(operation.getOperande1(), operation.getOperande2());
-                break;
-            case Calculator.MULTIPLICATION_LABEL:
-                operationResult = Calculator.multiplication(operation.getOperande1(), operation.getOperande2());
-                break;
-            default:
-                throw new ServletException(CalculatorController.INVALID_OPERATION_ERROR_LABEL);
-        }
-
+        IOperation ioperation = this.operationsMap.get(operation.getOperator());
+        operationResult = ioperation.calculate(operation.getOperande1(), operation.getOperande2());
         operation.setResult(operationResult);
     }   
 
