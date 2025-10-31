@@ -10,6 +10,6 @@ package fr.devavance.calculatrice.exceptions;
  */
 public class OperatorException extends RuntimeException {
     public OperatorException() {
-        super();
+        super("Bad operator given");
     }
 }

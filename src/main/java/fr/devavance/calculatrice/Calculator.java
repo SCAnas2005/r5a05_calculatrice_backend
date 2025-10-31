@@ -19,9 +19,7 @@ public class Calculator {
      * @return somme des deux opérances
      */
     public static Double addition(Integer s_operande_1, Integer s_operande_2)  {
-        
         return Double.valueOf(s_operande_1 + s_operande_2);
-       
     }
 	
     /**

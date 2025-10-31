@@ -1,6 +1,5 @@
-package fr.devavance.calculatrice;
+package fr.devavance.calculatrice.exceptions;
 
-import fr.devavance.calculatrice.exceptions.OperatorException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;

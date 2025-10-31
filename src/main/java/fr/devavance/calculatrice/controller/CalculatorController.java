@@ -44,7 +44,6 @@ public class CalculatorController extends HttpServlet {
     public void init() throws ServletException {
         super.init();
         this.permittedOperators = new ArrayList<>();
-
         this.permittedOperators.add(Calculator.ADD_LABEL);
         this.permittedOperators.add(Calculator.SUBSTRACTION_LABEL);
         this.permittedOperators.add(Calculator.MULTIPLICATION_LABEL);
@@ -65,60 +64,13 @@ public class CalculatorController extends HttpServlet {
     protected void doGet(HttpServletRequest request,
                          HttpServletResponse response)
             throws ServletException, IOException {
-
-
         Operation operation = new Operation();
-        extractOperationParameters();
-
-
-        double operationResult;
-
-        switch (operator) {
-            case Calculator.ADD_LABEL:
-                operationResult = Calculator.addition(operande1Int, operande2Int);
-                break;
-            case Calculator.SUBSTRACTION_LABEL:
-                operationResult = Calculator.soustraction(operande1Int, operande2Int);
-                break;
-            case Calculator.DIVISION_LABEL:
-                operationResult = Calculator.division(operande1Int, operande2Int);
-                break;
-            case Calculator.MULTIPLICATION_LABEL:
-                operationResult = Calculator.multiplication(operande1Int, operande2Int);
-                break;
-            default:
-                throw new ServletException(CalculatorController.INVALID_OPERATION_ERROR_LABEL);
-        }
-
-
-        response.setContentType("text/html;charset=UTF-8");
-
-        PrintWriter out = response.getWriter();
-        try {
-
-
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Calculator</title>");
-            out.println("</head>");
-            out.println("<body>");
-
-            out.println("<div>");
-            out.println("<p class=\"operande\">Operande 1 : " + operande1Int + "</p>");
-            out.println("<p class=\"operande\">Operande 2 : " + operande2Int + "</p>");
-            out.println("<p class=\"operation\">Operateur : " + operator + "</p>");
-            out.println("<p class=\"resultat\">resultat : " + operationResult + "</p>");
-            out.println("</div>");
-
-            out.println("</body>");
-            out.println("</html>");
-        } finally {
-            out.close();
-        }
+        extractAndCheckParamsFromURLParamaters(request, operation);
+        proceedCalculation(operation);
+        proceedView(response, operation);
     }
     
-    private void extractOperationParameters(HttpServletRequest request, Operation operation){
+    private void extractAndCheckParamsFromURLParamaters(HttpServletRequest request, Operation operation){
         String operator = request.getParameter(CalculatorController.URL_PARAMETER_OF_OPERATOR);
         String operande1 = request.getParameter(CalculatorController.URL_PARAMETER_OF_FIRST_OPERANDE);
         String operande2 = request.getParameter(CalculatorController.URL_PARAMETER_OF_SECOND_OPERANDE);
@@ -136,5 +88,55 @@ public class CalculatorController extends HttpServlet {
         operation.setOperande1(operande1Int);
         operation.setOperande2(operande2Int);
     }
+
+    private void proceedCalculation(Operation operation) throws ServletException {
+        double operationResult;
+
+        switch (operation.getOperator()) {
+            case Calculator.ADD_LABEL:
+                operationResult = Calculator.addition(operation.getOperande1(), operation.getOperande2());
+                break;
+            case Calculator.SUBSTRACTION_LABEL:
+                operationResult = Calculator.soustraction(operation.getOperande1(), operation.getOperande2());
+                break;
+            case Calculator.DIVISION_LABEL:
+                operationResult = Calculator.division(operation.getOperande1(), operation.getOperande2());
+                break;
+            case Calculator.MULTIPLICATION_LABEL:
+                operationResult = Calculator.multiplication(operation.getOperande1(), operation.getOperande2());
+                break;
+            default:
+                throw new ServletException(CalculatorController.INVALID_OPERATION_ERROR_LABEL);
+        }
+
+        operation.setResult(operationResult);
+    }   
+
+    private void proceedView(HttpServletResponse response, Operation operation) throws ServletException, IOException {
+    {
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        try {
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Calculator</title>");
+            out.println("</head>");
+            out.println("<body>");
+
+            out.println("<div>");
+            out.println("<p class=\"operande\">Operande 1 : " + operation.getOperande1() + "</p>");
+            out.println("<p class=\"operande\">Operande 2 : " + operation.getOperande2() + "</p>");
+            out.println("<p class=\"operation\">Operateur : " + operation.getOperator() + "</p>");
+            out.println("<p class=\"resultat\">resultat : " + operation.getResult() + "</p>");
+            out.println("</div>");
+
+            out.println("</body>");
+            out.println("</html>");
+        } finally {
+            out.close();
+        }
+    }
+}
 }
      
